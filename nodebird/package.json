@@ -1,0 +1,25 @@
+{
+  "name": "nodebird",
+  "version": "0.0.1",
+  "description": "SNS clone with express.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app"
+  },
+  "author": "jiyeon",
+  "license": "MIT",
+  "dependencies": {
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "morgan": "^1.10.0",
+    "mysql2": "^2.2.5",
+    "pug": "^3.0.2",
+    "sequelize": "^4.44.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}

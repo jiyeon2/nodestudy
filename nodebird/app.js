@@ -8,8 +8,10 @@ require('dotenv').config();
 
 const indexRouter = require('./routes/page');
 // const userRouter = require('./routes/user');
+const {sequelize} = require('./models');
 
 const app = express();
+sequelize.sync();
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));

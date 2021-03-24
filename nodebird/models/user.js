@@ -12,7 +12,7 @@ module.exports = ((sequelize, DataTypes) => (
       allowNull: false,
     },
     password: {
-      type: DataTypes.String(100),
+      type: DataTypes.STRING(100),
       allowNull: true // 카카오로그인시 비밀번호 필요없음
     },
     provider:{ // local || kakao

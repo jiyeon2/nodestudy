@@ -21,11 +21,11 @@ module.exports = (passport) => {
           done(null, exUser);
         } else {
           // 비밀번호 불일치, 실패정보 전달
-          done(null, false, {message: '비밀번호가 일치하지 않습니다'});
+          done(null, false, {message: '이메일-비밀번호 조합이 맞지 않습니다'}); // 보안을 위해 이메일이 있는지, 비밀번호가 틀렸는지 상세하게 알려주지 않음
         }
       } else {
         // 유저가 존재하지 않는경우 - 실패정보 전달
-        done(null, false, {message:'가입되지 않은 회원입니다'});
+        done(null, false, {message:'이메일-비밀번호 조합이 맞지 않습니다'});
       }
 
     } catch(error) {

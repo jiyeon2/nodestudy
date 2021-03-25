@@ -4,14 +4,18 @@ const morgan = require('morgan');
 const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
+
 require('dotenv').config();
 
 const indexRouter = require('./routes/page');
 // const userRouter = require('./routes/user');
 const {sequelize} = require('./models');
+const passportConfig = require('./passport');
 
 const app = express();
 sequelize.sync();
+passportConfig(passport); // passport.use(LocalStrategy); passport.use(kakaoStrategy); 등록
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -32,6 +36,8 @@ app.use(session({
   }
 }));
 app.use(flash());
+app.use(passport.initialize()); // passport 설정 초기화 미들웨어
+app.use(passport.session()); // 로그인시 사용자정보를 세션에 저장 - exporess-session미들웨어보다 아래에 위치해야 한다
 
 app.use('/', indexRouter);
 

@@ -1,4 +1,5 @@
 const LocalStrategy = require('passport-local');
+const bcrypt = require('bcrypt');
 const { User } = require('../models');
 
 // urlencoded 미들웨어가 해석한 req.body의 값들을

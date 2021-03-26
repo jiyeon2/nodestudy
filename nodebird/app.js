@@ -9,6 +9,7 @@ const passport = require('passport');
 require('dotenv').config();
 
 const indexRouter = require('./routes/page');
+const authRouter = require('./routes/auth');
 // const userRouter = require('./routes/user');
 const {sequelize} = require('./models');
 const passportConfig = require('./passport');
@@ -40,6 +41,7 @@ app.use(passport.initialize()); // passport 설정 초기화 미들웨어
 app.use(passport.session()); // 로그인시 사용자정보를 세션에 저장 - exporess-session미들웨어보다 아래에 위치해야 한다
 
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 
 // 404처리 미들웨어
 app.use((req,res,next) => {

@@ -44,7 +44,7 @@ router.post('/login', isNotLoggedIn, (req, res, next) => { // req.body.email, re
       return res.redirect('/');
     }
     //성공인 경우 passport가 req에 login붙여줌
-    return req.login(user, (loginError) => { // req.login(user) 하면 세션에 사용자정보가 저장됨, req.user로 사용자 정보 접근가능 
+    return req.login(user, (loginError) => { // req.login(user) 하면 세션에 사용자정보가 저장됨 - 이때 passport.serializeUser가 실행됨, req.user로 사용자 정보 접근가능 
       if(loginError) {
         console.error(loginError);
         return next(loginError);

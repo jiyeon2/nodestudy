@@ -27,5 +27,7 @@ module.exports = ((sequelize, DataTypes) => (
   },{
     timestamps: true, // 시퀄라이즈가 row생성일, 수정일 등록해줌
     paranoid: true, // 삭제일 기록 -> 복구가능
+    charset: 'utf8',
+    collate: 'utf8_general_ci'
   })
 ))

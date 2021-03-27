@@ -61,4 +61,15 @@ router.get('/logout', isLoggedIn, (req,res) => {
   res.redirect('/');
 })
 
+// GET /auth/kakao 
+// (1)kakao strategy실행
+router.get('/kakao', passport.authenticate('kakao'));
+
+// (2)
+router.get('/kakao/callback', passport.authenticate('kakao', {
+  failureRedirect: '/' // 실패시 메인으로
+}), (req, res) => { // 성공시
+  res.redirect('/');
+});
+
 module.exports = router;

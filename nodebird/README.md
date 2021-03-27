@@ -8,3 +8,7 @@ sequelize init
 ```
 sequelize db:create
 ```
+
+- <form enctype="multipart/form-data"> : 이미지 업로드시
+    - bodyparser, express.json, express.urlencoded가 해석을 못함
+    - multipart/form-data 해석을 위해 multer 필요

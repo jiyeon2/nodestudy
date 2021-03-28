@@ -37,6 +37,8 @@ block content
             button.like 좋아요
           else if user && like
             button.unlike 좋아요 취소
+          if user && user.id === twit.user.id
+            button.delete 삭제
   script.
     if (document.getElementById('img')) {
       document.getElementById('img').addEventListener('change', function (e) {
@@ -140,4 +142,28 @@ block content
              }
           })
         });
+    document.querySelectorAll('.delete').forEach(function (tag) {
+      tag.addEventListener('click', function () {
+        var isLoggedIn = document.querySelector('#my-id');
+        let twitId = tag.parentNode.querySelector('.twit-id').value;
+        if (isLoggedIn) {
+          let userId = tag.parentNode.querySelector('.twit-user-id').value;
+          let myId = isLoggedIn.value;
+          if (userId === myId){
+            if (confirm('진짜 삭제하시겠습니까?')){
+              var xhr = new XMLHttpRequest();
+              xhr.onload = function () {
+                if (xhr.status === 200) {
+                  location.reload();
+                } else {
+                  console.error(xhr.responseText);
+                }
+              };
+              xhr.open('DELETE', '/post/' + twitId);
+              xhr.send();
+            }
+          }
+        }
+      })
+    });
     

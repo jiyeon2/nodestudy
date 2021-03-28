@@ -39,6 +39,6 @@ db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followings', foreignKey
 // 한사람이 여러 게시글 좋아요 누를 수 있다
 // 하나의 게시글은 여러 사람의 좋아요 받을 수 있다
 db.User.belongsToMany(db.Post, {through: 'Like'});
-db.Post.belongsToMany(db.User, {through: 'Like'});
+db.Post.belongsToMany(db.User, {through: 'Like', as: 'Liker'});
 
 module.exports = db;

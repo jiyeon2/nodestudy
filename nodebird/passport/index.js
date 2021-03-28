@@ -22,7 +22,18 @@ module.exports = (passport) => {
     // if (user[id]) {
     //   done(user[id]);
     // } else {
-      User.find({where: {id}})
+      User.findOne({
+        where: {id},
+        include: [{
+          model: User, // req.user에 팔로잉 관계 추가
+          attributes: ['id','nick'],
+          as: 'Followers', // /model/user에서 belongsToMany as 로 넣었던 부분 가져옴
+        },{
+          model: User,
+          attributes: ['id','nick'],
+          as: 'Followings',
+        }]
+      })
       .then(user => {
         // user[id] = user; 
         done(null, user)})

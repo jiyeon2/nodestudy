@@ -33,7 +33,7 @@ db.Hashtag.belongsToMany(db.Post, {through: 'PostHashtag'});
 // 유저 팔로잉도 다대다관계
 // as: 매칭 모델명, foreignKey: 상대테이블 아이디
 db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followers', foreignKey: 'followingId'});
-db.User.belongsToMany(db.User, { through: 'Follow', as: 'Following', foreignKey: 'followerId'});
+db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followings', foreignKey: 'followerId'});
 
 // 게시글 좋아요 => 다대다관계
 // 한사람이 여러 게시글 좋아요 누를 수 있다

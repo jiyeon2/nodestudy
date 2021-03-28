@@ -1,7 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { Post, Hashtag } = require('../models');
+const { Post, Hashtag, User } = require('../models');
+const {isLoggedIn} = require('./middlewares');
 const router = express.Router();
 
 // 업로드 객체
@@ -12,13 +13,13 @@ const upload = multer({
     },
     filename(req, file, cb){
       const ext = path.extname(file.originalname); // 파일의 확장자 가져옴
-      cb(null, path.filename(file.originalname, ext) + new Date().valueOf()+ext);//파일명 중복 막기위해 시간도 붙임
+      cb(null, path.basename(file.originalname, ext) + new Date().valueOf()+ext);//파일명 중복 막기위해 시간도 붙임
     }
   }),
   limit: {fileSize: 5 * 1024 * 1024}, // 파일사이즈(바이트)
 })
 
-router.post('/img', upload.single('img'), (req, res) => {
+router.post('/img', isLoggedIn, upload.single('img'), (req, res) => {
   console.log(req.file); // multer로 업로드 한것은 req.file에 저장되어 있다(보통 다른 값은 req.body에 들어간다)
   res.json({url: `img/${req.file.filename}`}); // 프론트로 저장된 파일의 경로를 보내준다
 });// input의 name이나 id
@@ -27,7 +28,7 @@ router.post('/img', upload.single('img'), (req, res) => {
 const upload2 = multer();
 // 사진 업로드 후 게시글 업로드시에는 
 // 사진 대신 사진 주소를 올리므로 업로드객체.none
-router.post('/', upload2.none(), async (req, res, next) => {
+router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
   try{
     const post = await Post.create({
       content: req.body.content,
@@ -48,6 +49,28 @@ router.post('/', upload2.none(), async (req, res, next) => {
     next(error);
   }
 });
+
+router.get('/hashtag', async (req,res,next) => {
+  const query = req.query.hashtag;
+  if (!query){
+    return res.redirect('/');
+  }
+  try{
+    const hashtag = await Hashtag.find({where: {title: query}});
+    let posts = [];
+    if (hashtag){
+      posts = await hashtag.getPosts({include: [{model :User}]});
+    }
+    return res.render('main',{
+      title: `${query} | Nodebird`,
+      user: req.user,
+      twits: posts,
+    })
+  } catch(error){
+    console.error(error);
+    next(error);
+  }
+})
 
 
 module.exports = router;

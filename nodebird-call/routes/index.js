@@ -6,7 +6,7 @@ const router = express.Router();
 // client-secret키를 nodebird-api로 보내고 인증받은 후 jwt토큰을 받아옴
 // 매번 토큰을 받아오는것은 비효율적이므로
 // 한번 토큰 받으면 유효기간 전까지는 세션에 토큰 저장할 예정
-router.get('/test',(req,res,next) => {
+router.get('/test', async (req,res,next) => {
   try{
     // 세션에 저장된 토큰이 없는 경우 토큰을 발급받는다
     if (!req.session.jwt){
@@ -27,7 +27,8 @@ router.get('/test',(req,res,next) => {
     return res.json(result.data);
   }catch(error){
     console.error(error);
-    if (error.response.status === 419){
+    if (error.response.status === 419){ // 토큰만료 에러
+      // http 상태코드에 없는거 마음대로 정의해서 써도됨
       return res.json(error.response.data);
     }
     return next(error);

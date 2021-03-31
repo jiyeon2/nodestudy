@@ -46,4 +46,9 @@ router.post('/token', async (req,res) => {
   }
 })
 
+router.get('/test', verifyToken, (req,res) => {
+  // verifyToken에서 req.decoded에 토큰 넣어줌
+  res.json(req.decoded);
+})
+
 module.exports = router;

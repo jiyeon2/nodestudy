@@ -7,15 +7,16 @@ const session = require('express-session');
 const flash = require('connect-flash');
 require('dotenv').config();
 
+const indexRouter = require('./routes');
+const authRouter = require('./routes/auth');
+const v1 = require('./routes/v1');
 const {sequelize} = require('./models');
 const passportConfig = require('./passport');
-const authRouter = require('./routes/auth');
-const indexRouter = require('./routes');
-const v1 = require('./routes/v1');
 
 const app = express();
 sequelize.sync();
-passportConfig(passport);
+passportConfig(passport); // passport.use(LocalStrategy); passport.use(kakaoStrategy); 등록
+
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine','pug');

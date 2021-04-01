@@ -51,4 +51,46 @@ router.get('/test', verifyToken, (req,res) => {
   res.json(req.decoded);
 })
 
+router.get('/posts/my', verifyToken, (req,res) => {
+  Post.findAll({ where: {userId: req.decoded.id }})
+  .then((posts) => {
+    console.log(posts);
+    res.json({
+      code: 200,
+      payload: posts,
+    })
+  }).catch((error) => {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: '서버에러',
+    });
+  })
+});
+
+// 응답은 json으로 통일한다
+// 어떤 응답은 json이고, 어떤응답은 xml이고, html이고 그러면
+// 사용자가 혼란스러움
+router.get('/posts/hashtag/:title', verifyToken, async (req,res) => {
+  try{
+    const hashtag = await Hashtag.find({ where: {title: req.params.title}});
+    if (!hashtag){
+      return res.status(404).json({
+        code: 404,
+        message: '검색결과가 없습니다'
+      })
+    }
+    const posts = await hashtag.getPosts();
+    return res.json({
+      code: 200,
+      payload: posts
+    })
+  }catch(error){
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: '서버에러'
+    })
+  }
+})
 module.exports = router;

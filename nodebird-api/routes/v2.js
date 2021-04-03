@@ -1,11 +1,33 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const cors = require('cors')
+const url = require('url');
 
 const {apiLimiter, verifyToken} = require('./middlewares');
 const {Domain, User, Post, Hashtag} = require('../models');
+const { equal } = require('assert');
 const router = express.Router();
 
+// cors, apiLimiter 적용 등 급격한 변화가 있으면 api버전을 올리는 게 좋다
+// api 서버는 버전관리가 중요하다
+// router.use(cors()); // 응답에 ACCESS-CONTROL-ALLOW-ORIGIN헤더를 넣어줌
+// cors() 에 도메인 지정하지 않으면 모든 도메인 요청을 허용함
 
+// router.use(cors()) 아래 코드와 같음
+// 미들웨어 안에 미들웨어 넣어서 커스터마이징 가능
+router.use(async (req,res,next) => {
+  const domain = await Domain.findOne({
+    where: { host: url.parse(req.get('origin')).host },
+  })
+  console.log( url.parse(req.get('origin')).host,domain);
+  if (domain){
+    // 도메인이 등록되어있다면 cors허용
+    cors({origin: req.get('origin')})(req,res,next);
+  } else {
+    next();
+  }
+  
+})
 router.post('/token', apiLimiter, async (req,res) => {
   const {clientSecret} = req.body;
   try{

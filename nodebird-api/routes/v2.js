@@ -1,13 +1,12 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 
-const {verifyToken, deprecated} = require('./middlewares');
-const { Domain, User, Post, Hashtag } = require('../models');
-
+const {apiLimiter, verifyToken} = require('./middlewares');
+const {Domain, User, Post, Hashtag} = require('../models');
 const router = express.Router();
 
-router.use(deprecated); // 모든 라우터에서 공통으로 사용하는 경우 router.use
-router.post('/token', async (req,res) => {
+
+router.post('/token', apiLimiter, async (req,res) => {
   const {clientSecret} = req.body;
   try{
     const domain = await Domain.findOne({
@@ -47,12 +46,12 @@ router.post('/token', async (req,res) => {
   }
 })
 
-router.get('/test', verifyToken, (req,res) => {
+router.get('/test',apiLimiter, verifyToken, (req,res) => {
   // verifyToken에서 req.decoded에 토큰 넣어줌
   res.json(req.decoded);
 })
 
-router.get('/posts/my', verifyToken, (req,res) => {
+router.get('/posts/my', apiLimiter, verifyToken, (req,res) => {
   Post.findAll({ where: {userId: req.decoded.id }})
   .then((posts) => {
     console.log(posts);
@@ -72,7 +71,7 @@ router.get('/posts/my', verifyToken, (req,res) => {
 // 응답은 json으로 통일한다
 // 어떤 응답은 json이고, 어떤응답은 xml이고, html이고 그러면
 // 사용자가 혼란스러움
-router.get('/posts/hashtag/:title', verifyToken, async (req,res) => {
+router.get('/posts/hashtag/:title', apiLimiter, verifyToken, async (req,res) => {
   try{
     const hashtag = await Hashtag.find({ where: {title: req.params.title}});
     if (!hashtag){
@@ -95,7 +94,7 @@ router.get('/posts/hashtag/:title', verifyToken, async (req,res) => {
   }
 })
 
-router.get('/follow', verifyToken, async (req, res) => {
+router.get('/follow', apiLimiter, verifyToken, async (req, res) => {
   try{
     // verifyToken에서 토큰 내용을 복호화하여 req.decoded에 넣어준다
     const user = await User.find({where: {id: req.decoded.id}});
@@ -114,4 +113,5 @@ router.get('/follow', verifyToken, async (req, res) => {
     })
   }
 });
+
 module.exports = router;

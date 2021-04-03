@@ -2,6 +2,8 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 
+const version =  'v2'
+
 // nodebird-call ->>> nodebird-api
 // client-secret키를 nodebird-api로 보내고 인증받은 후 jwt토큰을 받아옴
 // 매번 토큰을 받아오는것은 비효율적이므로
@@ -10,7 +12,7 @@ router.get('/test', async (req,res,next) => {
   try{
     // 세션에 저장된 토큰이 없는 경우 토큰을 발급받는다
     if (!req.session.jwt){
-      const tokenResult = await axios.post('http://localhost:8002/v1/token',{
+      const tokenResult = await axios.post(`http://localhost:8002/${version}/token`,{
         clientSecret: process.env.CLIENT_SECRET
       });
       if (tokenResult.data && tokenResult.data.code === 200){
@@ -21,7 +23,7 @@ router.get('/test', async (req,res,next) => {
       }
     }
     // 세션에 저장된 토큰을 요청헤더의 authorization에 넣어서 보낸다
-    const result = await axios.get('http://localhost:8002/v1/test',{
+    const result = await axios.get(`http://localhost:8002/${version}/test`,{
       headers: { authorization: req.session.jwt}
     })
     return res.json(result.data);
@@ -39,12 +41,12 @@ router.get('/test', async (req,res,next) => {
 const request = async (req, api) => {
   try{
     if (!req.session.jwt){
-      const tokenResult = await axios.post('http://localhost:8002/v1/token',{
+      const tokenResult = await axios.post(`http://localhost:8002/${version}/token`,{
         clientSecret: process.env.CLIENT_SECRET,
       });
       req.session.jwt = tokenResult.data.token;
     }
-    return await axios.get(`http://localhost:8002/v1${api}`,{
+    return await axios.get(`http://localhost:8002/${version}${api}`,{
       headers: {authorization: req.session.jwt},
     }) 
   } catch(error) {

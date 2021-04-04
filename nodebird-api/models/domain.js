@@ -9,7 +9,11 @@ module.exports = (sequelize, DataTypes) => (
       type: DataTypes.STRING(10),
       allowNull: false,
     },
-    clientSecret: {
+    clientSecret: { // 서버에서 쓸 시크릿키
+      type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    frontSecret: { // 프론트에서 쓸 시크릿키
       type: DataTypes.STRING(40),
       allowNull: false,
     },
@@ -18,7 +22,7 @@ module.exports = (sequelize, DataTypes) => (
     paranoid: true, //삭제일 기록
     validate: {
       unknownType() {
-        if (this.type !== 'free' && this.type !== 'premiun'){
+        if (this.type !== 'free' && this.type !== 'premium'){
           throw new Error('type 컬럼은 free이거나 premium이어야 합니다');
         }
       }

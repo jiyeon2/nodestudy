@@ -26,6 +26,7 @@ router.post('/domain',(req,res,next) => {
     host: req.body.host,
     type: req.body.type,
     clientSecret: uuidv4(),
+    frontSecret: uuidv4(),
   }).then(() => {
     res.redirect('/');
   }).catch((error) => {

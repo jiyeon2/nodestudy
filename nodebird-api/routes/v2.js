@@ -40,7 +40,7 @@ router.post('/token', async (req,res) => {
   const {clientSecret} = req.body;
   try{
     const domain = await Domain.findOne({
-      where: {clientSecret},
+      where: { frontSecret : clientSecret}, // 도메인과 시크릿 모두 같아야 인증되므로 프론트 시크릿은 프론트에 노출되어도 됨
       include: {
         model: User,
         attribute: ['nick','id'],

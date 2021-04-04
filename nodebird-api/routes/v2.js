@@ -3,9 +3,8 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors')
 const url = require('url');
 
-const {apiLimiter, verifyToken} = require('./middlewares');
+const {apiLimiter, verifyToken, premiumApiLimiter} = require('./middlewares');
 const {Domain, User, Post, Hashtag} = require('../models');
-const { equal } = require('assert');
 const router = express.Router();
 
 // cors, apiLimiter 적용 등 급격한 변화가 있으면 api버전을 올리는 게 좋다
@@ -19,16 +18,25 @@ router.use(async (req,res,next) => {
   const domain = await Domain.findOne({
     where: { host: url.parse(req.get('origin')).host },
   })
-  console.log( url.parse(req.get('origin')).host,domain);
   if (domain){
     // 도메인이 등록되어있다면 cors허용
     cors({origin: req.get('origin')})(req,res,next);
   } else {
     next();
   }
-  
 })
-router.post('/token', apiLimiter, async (req,res) => {
+router.use(async (req,res,next) => {
+  const domain = await Domain.findOne({
+    where: { host: url.parse(req.get('origin')).host },
+  })
+  if (domain.type === 'premium'){
+    premiumApiLimiter(req,res,next);
+  } else {
+    apiLimiter(req,res,next);
+  }
+})
+
+router.post('/token', async (req,res) => {
   const {clientSecret} = req.body;
   try{
     const domain = await Domain.findOne({
@@ -73,7 +81,7 @@ router.get('/test',apiLimiter, verifyToken, (req,res) => {
   res.json(req.decoded);
 })
 
-router.get('/posts/my', apiLimiter, verifyToken, (req,res) => {
+router.get('/posts/my', verifyToken, (req,res) => {
   Post.findAll({ where: {userId: req.decoded.id }})
   .then((posts) => {
     console.log(posts);
@@ -93,7 +101,7 @@ router.get('/posts/my', apiLimiter, verifyToken, (req,res) => {
 // 응답은 json으로 통일한다
 // 어떤 응답은 json이고, 어떤응답은 xml이고, html이고 그러면
 // 사용자가 혼란스러움
-router.get('/posts/hashtag/:title', apiLimiter, verifyToken, async (req,res) => {
+router.get('/posts/hashtag/:title', verifyToken, async (req,res) => {
   try{
     const hashtag = await Hashtag.find({ where: {title: req.params.title}});
     if (!hashtag){
@@ -116,7 +124,7 @@ router.get('/posts/hashtag/:title', apiLimiter, verifyToken, async (req,res) => 
   }
 })
 
-router.get('/follow', apiLimiter, verifyToken, async (req, res) => {
+router.get('/follow', verifyToken, async (req, res) => {
   try{
     // verifyToken에서 토큰 내용을 복호화하여 req.decoded에 넣어준다
     const user = await User.find({where: {id: req.decoded.id}});

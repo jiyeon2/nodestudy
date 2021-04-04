@@ -41,12 +41,24 @@ exports.verifyToken = (req,res,next) => {
 
 exports.apiLimiter = new RateLimit({
   windowMs: 60 * 1000, // 1분 동안 60 * 1000ms
+  max: 1, // 최대 요청 가능 횟수
+  delayMs: 0, // 요청간 간격
+  handler(req,res){ // 기준 시간 내 최대요청가능 횟수 넘겼을 경우 응답
+    res.status(this.statusCode).json({
+      code: this.statusCode, // 429 - http 코드 아니고 임의로 지정한거라서 api사용자에게 인식시키는게 필요하다
+      message: '무료 사용자는 1분에 한번만 요청할 수 있습니다'
+    })
+  }
+})
+
+exports.premiumApiLimiter = new RateLimit({
+  windowMs: 60 * 1000, // 1분 동안 60 * 1000ms
   max: 1000, // 최대 요청 가능 횟수
   delayMs: 0, // 요청간 간격
   handler(req,res){ // 기준 시간 내 최대요청가능 횟수 넘겼을 경우 응답
     res.status(this.statusCode).json({
       code: this.statusCode, // 429 - http 코드 아니고 임의로 지정한거라서 api사용자에게 인식시키는게 필요하다
-      message: '1분에 한번만 요청할 수 있습니다'
+      message: '유료 사용자는 1분에 1000번만 요청할 수 있습니다'
     })
   }
 })

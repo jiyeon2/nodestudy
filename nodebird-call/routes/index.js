@@ -52,6 +52,10 @@ const request = async (req, api) => {
   } catch(error) {
     console.error(error);
     if (error.response.status < 500){
+      // 토큰 만료시 재발급하기
+      // 세션에 저장된 만료된 토큰을 삭제하고 다시 요청보내면 됨
+      delete req.session.jwt;
+      request(req,api);
       return error.response;
     }
     throw error;

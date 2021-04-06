@@ -1,12 +1,14 @@
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
+const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
 require('dotenv').config();
 
 const webSocket = require('./socket');
 const indexRouter = require('./routes');
+const app = express();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');

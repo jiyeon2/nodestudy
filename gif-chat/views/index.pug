@@ -5,5 +5,23 @@ html
     title GIF 채팅방
   body 
     div F12를 눌러 console탭과 network탭을 확인하세요
+    script(src='/socket.io/socket.io.js')
     script.
-      // 웹소켓 스크립트 부분
+      var socket = io.connect('http://localhost:8005', {
+        path: '/socket.io',
+      })
+      socket.on('news', function (data) {
+        console.log(data);
+        socket.emit('reply','Hello reply');
+        socket.emit('message','Hello node js');
+      })
+
+      // wss 사용시 웹소켓 스크립트 부분
+      //- var webSocket = new WebSocket('ws://localhost:8005'); //https 쓰는 경우 wss
+      //- webSocket.onopen = function() { // 연결 수립시 발생하는 이벤트 onopen == 서버에서는 'connection' 이벤트
+      //-   console.log('서버와 웹소켓 연결 성공!');
+      //- }
+      //- webSocket.onmessage = function (event){ // 서버 ws.send(data) 에서 data가 event에 담겨서 옴
+      //-   console.log(event.data);
+      //-   webSocket.send('클라이언트에서 서버로 답장을 보냄');
+      //- }

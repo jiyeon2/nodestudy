@@ -1,5 +1,6 @@
 const SocketIO = require('socket.io');
 
+
 module.exports = (server) => {
   const io = SocketIO(server, {path: '/socket.io'});
 
@@ -27,6 +28,9 @@ module.exports = (server) => {
   })
 }
 
+/**
+ * socket.IO는 처음에 http 요청을 보낸다 -> 웹소켓 지원여부 확인
+ */
 
 // ws
 // module.exports = (server) => {

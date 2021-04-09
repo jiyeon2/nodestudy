@@ -1,15 +1,23 @@
 const { default: axios } = require('axios');
 const SocketIO = require('socket.io');
+const axios = require('axios');
 
 
-module.exports = (server) => {
+module.exports = (server, app, sessionMiddleware) => {
   const io = SocketIO(server, {path: '/socket.io'});
+  app.set('io',io); // 익스프레스 변수 저장 방법
+  // 라우터에서  req.app.get('io')로 socketIo 꺼내와서
+  // req.app.get('io').of('/room').emit(...) 으로 메시지 보낼 수 있다
 
 // 네임스페이스
 // 실시간 데이터가 전달될 주소를 구별할 수 있다
 // 기본값은 '/'
 const room = io.of('/room');
 const chat = io.of('/chat');
+// 익스프레스 미들웨어를 소켓IO에서 쓰는 방법
+io.use((socket, next) => { // 소켓에서도 미들웨어 사용할 수 있다, req,res대신 웹소켓 받고, 소켓안의 req,res 를 넘긴다
+  sessionMiddleware(socket.request, socket.response, next);
+})
 
 room.on('connection', (socket) => {
   console.log('room 네임스페이스에 접속');
@@ -33,16 +41,23 @@ chat.on('connection', (socket) => {
     user:'system',
     chat: `${req.session.color}님이 입장하셨습니다`
   });
+
   socket.on('disconnect', () => {
     console.log('chat 네임스페이스 접속 해제');
     socket.leave(roomId); // 방 나가기
-    const currentRoom = socket.adapter.rooms[roomId];
+    // 방의 인원이 하나도 없으면 방 없앰
+    const currentRoom = socket.adapter.rooms[roomId]; // 방 정보와 인원 들어있음
     const userCount = currentRoom ? currentRoom.length : 0;
     if (userCount === 0){
       axios.delete(`http://localhost:8005/room/${roomId}`)
       .then(() => {
         console.log('방 제거 요청 성공')
       }).catch(error => console.error(error));
+    } else {
+      socket.to(roomId).emit('exit', {
+        user: 'system',
+        chat: `${req.session.color}님이 퇴장하셨습니다`
+      });
     }
   })
 })

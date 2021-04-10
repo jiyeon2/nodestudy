@@ -1,4 +1,3 @@
-const { default: axios } = require('axios');
 const SocketIO = require('socket.io');
 const axios = require('axios');
 
@@ -16,7 +15,7 @@ const room = io.of('/room');
 const chat = io.of('/chat');
 // 익스프레스 미들웨어를 소켓IO에서 쓰는 방법
 io.use((socket, next) => { // 소켓에서도 미들웨어 사용할 수 있다, req,res대신 웹소켓 받고, 소켓안의 req,res 를 넘긴다
-  sessionMiddleware(socket.request, socket.response, next);
+  sessionMiddleware(socket.request, socket.request.res, next);
 })
 
 room.on('connection', (socket) => {

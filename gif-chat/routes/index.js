@@ -58,13 +58,44 @@ router.get('/room/:id', async (req,res,next) => {
       req.flash('roomError', '허용인원 초과');
       return res.redirect('/');
     }
+    const chats = await Chat.find({room:room._id}).sort('createdAt');
     return res.render('chat', {
       room,
       title: room.title,
-      chats: [],
+      chats,
       user: req.session.color,
     });
 
+  }catch(error){
+    console.error(error);
+    next(error);
+  }
+});
+
+router.delete('/room/:id', async  (req,res,next) => {
+  try{
+    await Room.remove({ _id: req.params.id });
+    await Chat.remove({ room: req.params.id});
+    res.send('ok');
+    setTimeout(() => {
+      req.app.get('io').of('/room').emit('removeRoom', req.params.id);
+    }, 2000);
+  } catch(error){
+    console.error(error);
+    next(error);
+  }
+});
+
+router.post('/room/:id/chat', async (req,res,next) => {
+  try{
+    const chat = new Chat({
+      room: req.params.id,
+      user: req.session.color,
+      chat: req.body.chat,
+    });
+    await chat.save();
+    req.app.get('io').of('/chat').to(req.params.id).emit('chat',chat);
+    res.send('ok');
   }catch(error){
     console.error(error);
     next(error);

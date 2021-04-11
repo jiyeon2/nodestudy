@@ -45,6 +45,8 @@ chat.on('connection', (socket) => {
     console.log('chat 네임스페이스 접속 해제');
     socket.leave(roomId); // 방 나가기
     // 방의 인원이 하나도 없으면 방 없앰
+    // 여기서 방 없애도 되지만 디비를 조작해야 하는 경우 
+    // axios로 요청한거처럼 라우터 통해서(http 요청해서) 조작하는 게나음(여기서 하면 코드 매우 지저분해짐)
     const currentRoom = socket.adapter.rooms[roomId]; // 방 정보와 인원 들어있음
     const userCount = currentRoom ? currentRoom.length : 0;
     if (userCount === 0){

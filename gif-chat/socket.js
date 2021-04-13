@@ -38,7 +38,8 @@ chat.on('connection', (socket) => {
 
   socket.to(roomId).emit('join',{ // 해당 방id에만 메시지 보냄
     user:'system',
-    chat: `${req.session.color}님이 입장하셨습니다`
+    chat: `${req.session.color}님이 입장하셨습니다`,
+    number: socket.adapter.rooms[roomId].length
   });
 
   socket.on('disconnect', () => {
@@ -57,7 +58,8 @@ chat.on('connection', (socket) => {
     } else {
       socket.to(roomId).emit('exit', {
         user: 'system',
-        chat: `${req.session.color}님이 퇴장하셨습니다`
+        chat: `${req.session.color}님이 퇴장하셨습니다`,
+        number: socket.adapter.rooms[roomId].length
       });
     }
   })

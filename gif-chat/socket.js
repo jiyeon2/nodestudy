@@ -1,6 +1,8 @@
 const SocketIO = require('socket.io');
 const axios = require('axios');
-
+const cookieParser = require('cookie-parser');
+const cookie = require('cookie-signature');
+require('dotenv').config();
 
 module.exports = (server, app, sessionMiddleware) => {
   const io = SocketIO(server, {path: '/socket.io'});
@@ -14,6 +16,9 @@ module.exports = (server, app, sessionMiddleware) => {
 const room = io.of('/room');
 const chat = io.of('/chat');
 // 익스프레스 미들웨어를 소켓IO에서 쓰는 방법
+io.use((socket, next) => { 
+  cookieParser(process.env.COOKIE_SECRET)(socket.request, socket.request.res, next) 
+});
 io.use((socket, next) => { // 소켓에서도 미들웨어 사용할 수 있다, req,res대신 웹소켓 받고, 소켓안의 req,res 를 넘긴다
   sessionMiddleware(socket.request, socket.request.res, next);
 })
@@ -36,10 +41,18 @@ chat.on('connection', (socket) => {
 
   socket.join(roomId); // 방에 접속하는 코드
 
-  socket.to(roomId).emit('join',{ // 해당 방id에만 메시지 보냄
-    user:'system',
-    chat: `${req.session.color}님이 입장하셨습니다`,
-    number: socket.adapter.rooms[roomId].length
+  // socket.to(roomId).emit('join',{ // 해당 방id에만 메시지 보냄
+  //   user:'system',
+  //   chat: `${req.session.color}님이 입장하셨습니다`,
+  //   number: socket.adapter.rooms[roomId].length
+  // });
+  // 입장 퇴장 시스템 메시지 디비에 저장 - 디비 접속하는 건 http 요청으로 라우터 거치는 게 좋다
+  axios.post(`http://localhost:8005/room/${roomId}/sys`, {
+    type: 'join'
+  },{
+    headers: {
+      Cookie: `connect.sid=${'s%A' + cookie.sign(req.signedCookies['connect.sid'])}`
+    }
   });
 
   socket.on('disconnect', () => {
@@ -56,10 +69,17 @@ chat.on('connection', (socket) => {
         console.log('방 제거 요청 성공')
       }).catch(error => console.error(error));
     } else {
-      socket.to(roomId).emit('exit', {
-        user: 'system',
-        chat: `${req.session.color}님이 퇴장하셨습니다`,
-        number: socket.adapter.rooms[roomId].length
+      // socket.to(roomId).emit('exit', {
+      //   user: 'system',
+      //   chat: `${req.session.color}님이 퇴장하셨습니다`,
+      //   number: socket.adapter.rooms[roomId].length
+      // });
+      axios.post(`http://localhost:8005/room/${roomId}/sys`, {
+        type: 'exit'
+      },{
+        headers: {
+          Cookie: `connect.sid=${'s%A' + cookie.sign(req.signedCookies['connect.sid'])}`
+        }
       });
     }
   })

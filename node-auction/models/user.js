@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => (
       allowNull: true,
     },
     money:{
-      type: DataTypes.INTEGET,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },

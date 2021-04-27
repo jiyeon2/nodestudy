@@ -67,7 +67,7 @@ router.post('/good', isLoggedIn, upload.single('img'), async (req, res, next) =>
       price,
     });
     const end = new Date();
-    end.setMinutes(end.getMinutes() + 1);
+    end.setDate(end.getDate() + 1);
     // 서버 메모리에 스케줄이 저장됨
     // 서버가 재시작하면 스케줄이 다 사라짐
     schedule.scheduleJob(end, async () => {
@@ -135,6 +135,9 @@ router.post('/good/:id/bid', isLoggedIn, async (req, res, next) => {
     // 직전 입찰가와 현재 입찰가 비교
     if (good.auctions[0] && good.auctions[0].bid >= bid) {
       return res.status(403).send('이전 입찰가보다 높아야 합니다');
+    }
+    if (good.ownerId === req.user.id){
+      return res.status(403).send('경매 등록자는 입찰할 수 없습니다');
     }
     const result = await Auction.create({
       bid,
